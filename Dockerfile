@@ -15,11 +15,11 @@ FROM docker.io/library/python:3.10.6-alpine3.15 as base
 COPY --from=build /root/.local /root/.local
 
 # (re)installs a few dependencies
-RUN apk add pcre-dev git openssh
+RUN apk add pcre-dev
 
 # load uwsgi config
-RUN mkdir -p /etc/micropub
-COPY ./template/micropub.ini /etc/micropub
+RUN mkdir -p /etc/index
+COPY ./etc/index.ini /etc/index
 
 # install source code
 COPY ./src /app/src
@@ -33,6 +33,9 @@ FROM base as dev
 # mount database directory here
 RUN mkdir -p /mnt/db
 
+# mount share directory here
+RUN mkdir -p /mnt/share
+
 # mount source code volume here
 WORKDIR /mnt/src
 
@@ -43,8 +46,8 @@ ENTRYPOINT ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=80"]
 # Production
 ############
 
-FROM test as prod
+FROM base as prod
 WORKDIR /app/src
 ENV FLASK_ENV production
 
-ENTRYPOINT ["/root/.local/bin/uwsgi", "--ini", "/etc/micropub/micropub.ini"]
+ENTRYPOINT ["/root/.local/bin/uwsgi", "--ini", "/etc/index/index.ini"]

@@ -4,7 +4,7 @@ from flask_cors import CORS
 
 from app import config
 from app.core import core_bp
-from . import init_db
+from app import init
 
 
 def create_app(config=config.BaseConfig):
@@ -24,7 +24,7 @@ def create_app(config=config.BaseConfig):
         app.register_blueprint(core_bp)
 
         # initiate db
-        init_db(app.config["DB_PATH"])
+        init.init_db(app.config["DB_PATH"])
 
         @app.route("/healthcheck", methods=["GET"])
         def health():
