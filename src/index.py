@@ -8,7 +8,7 @@ import sqlite3
 from sqlite3 import Connection
 
 
-Metadata = namedtuple('Metadata', 'url title content')
+Metadata = namedtuple('Metadata', 'url author title content')
 
 
 def get_db_path() -> str:
@@ -25,15 +25,20 @@ def connect(db_path: str) -> Connection:
 def get_metadatas(con: Connection) -> list[Metadata]:
     cur = con.cursor()
     metadata = []
-    for x in cur.execute("SELECT url, title, content FROM metadata m join file f on m.file_id = f.rowid;"):
-        metadata.append(Metadata(x[0], x[1], x[2]))
+    for x in cur.execute("""
+        SELECT f.url, author, title, content
+        FROM metadata m
+        join file f on m.file_id = f.rowid
+        join site s on f.site_id = s.rowid;
+        """):
+        metadata.append(Metadata(x[0], x[1], x[2], x[3]))
     return metadata
 
 
 def save_index(data: list[Metadata]) -> None:
     content = []
     for metadata in metadatas:
-        content.append(dict(id=metadata.url, title=metadata.title, content=metadata.content))
+        content.append(dict(id=metadata.url, author=metadata.author, title=metadata.title, content=metadata.content))
 
     path = os.path.join('dist', 'index.json')
     with open(path, 'w') as f:
