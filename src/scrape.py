@@ -3,12 +3,12 @@ import json
 import argparse
 from urllib.parse import urljoin, urlparse
 from collections import namedtuple
-from typing import Callable
 
 import sqlite3
 from sqlite3 import Connection
 from bs4 import BeautifulSoup, Tag
 import requests
+
 
 Site = namedtuple('Site', 'id author url partial_links link_query')
 File = namedtuple('File', 'link root stem site_id')
@@ -90,7 +90,6 @@ def create_file(file: File) -> None:
 def insert_file(con: Connection, file: File) -> None:
     to_insert = (file.link, get_full_path(file), file.site_id)
     cur = con.cursor()
-    print(to_insert)
     cur.execute("INSERT INTO file VALUES (?, ?, ?, CURRENT_DATE)", to_insert)
     con.commit()
 

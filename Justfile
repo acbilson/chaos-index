@@ -13,3 +13,11 @@ init: venv clean
 # runs scraper script
 scrape: venv
 	src/venv/bin/python3 src/scrape.py --path db/data.db
+
+# runs parser script
+parse: venv
+	src/venv/bin/python3 src/parse.py --path db/data.db
+
+# runs index script
+index: venv
+	src/venv/bin/python3 src/index.py --path db/data.db
