@@ -7,7 +7,7 @@ clean:
 	rm -f db/data.db
 
 # runs init script
-init: venv clean
+init: venv
 	src/venv/bin/python3 src/init.py --path db/data.db
 
 # runs scraper script

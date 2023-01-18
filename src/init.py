@@ -17,7 +17,7 @@ def connect(db_path: str) -> Connection:
 def create_tables(con: Connection) -> None:
     cur = con.cursor()
     cur.execute("""
-    CREATE TABLE site(
+    CREATE TABLE IF NOT EXISTS site(
         author TEXT NOT NULL,
         url TEXT NOT NULL,
         partial_links INTEGER NOT NULL,
@@ -27,7 +27,7 @@ def create_tables(con: Connection) -> None:
         );
     """)
     cur.execute("""
-    CREATE TABLE file(
+    CREATE TABLE IF NOT EXISTS file(
         url TEXT NOT NULL,
         path TEXT NOT NULL,
         site_id INTEGER NOT NULL,
@@ -36,7 +36,7 @@ def create_tables(con: Connection) -> None:
             REFERENCES site (rowid));
     """)
     cur.execute("""
-    CREATE TABLE metadata(
+    CREATE TABLE IF NOT EXISTS metadata(
         title TEXT NULL,
         content TEXT NULL,
         file_id INTEGER NOT NULL,
