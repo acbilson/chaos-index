@@ -1,13 +1,5 @@
-import argparse
 import sqlite3
 from sqlite3 import Connection
-
-
-def get_db_path() -> str:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-p", "--path", type=str, help="path to the sqlite3 db file")
-    args = parser.parse_args()
-    return args.path
 
 
 def connect(db_path: str) -> Connection:
@@ -50,6 +42,7 @@ def insert(con: Connection, sql: str) -> None:
     cur.execute(sql)
     con.commit()
 
+
 def insert_defaults(con: Connection) -> None:
         insert(con, """
         INSERT INTO site VALUES
@@ -57,9 +50,9 @@ def insert_defaults(con: Connection) -> None:
             ('Alex Bilson', 'https://alexbilson.dev/plants', 0, 'ul.fill-list', 'h1', 'article.e-content');
 """)
 
-if __name__ == "__main__":
-    path = get_db_path()
-    con = connect(path)
+
+def init_db(db_path: str) -> None:
+    con = connect(db_path)
     create_tables(con)
     insert_defaults(con)
     con.close()

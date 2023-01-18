@@ -1,3 +1,8 @@
-beautifulsoup4==4.11.1
-bs4==0.0.1
-soupsieve==2.3.2.post1
+Flask
+Flask-CORS
+Flask-Caching
+Flask-HTTPAuth
+bs4
+python-dotenv
+requests
+uwsgi
