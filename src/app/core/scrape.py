@@ -9,9 +9,7 @@ from sqlite3 import Connection
 from bs4 import BeautifulSoup, Tag
 import requests
 
-
-Site = namedtuple('Site', 'id author url partial_links link_query')
-File = namedtuple('File', 'link root stem site_id')
+from app.core.models import File
 
 
 def get_landing_page(url: str) -> BeautifulSoup:
@@ -45,14 +43,15 @@ def get_files(site_id: int, author: str, links: list[str]) -> list[File]:
     return data
 
 
-def create_root_path(root: str) -> None:
+def create_root_path(author: str) -> None:
+    root = author.lower().replace(' ', '-')
     path = os.path.join('share', root)
     if not os.path.exists(path):
             os.makedirs(path)
 
 
 def get_full_path(file: File) -> str:
-    return os.path.join('share', file.root, file.stem + '.html')
+    return os.path.join('share', file.path + '.html')
 
 
 def file_is_present(con: Connection, path: str) -> bool:

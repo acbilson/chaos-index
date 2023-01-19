@@ -43,6 +43,11 @@ def insert(con: Connection, sql: str) -> None:
     con.commit()
 
 
+def remove_defaults(con: Connection) -> None:
+    cur = con.cursor()
+    cur.execute("DELETE FROM site;")
+
+
 def insert_defaults(con: Connection) -> None:
         insert(con, """
         INSERT INTO site VALUES
@@ -54,5 +59,6 @@ def insert_defaults(con: Connection) -> None:
 def init_db(db_path: str) -> None:
     con = connect(db_path)
     create_tables(con)
+    remove_defaults(con)
     insert_defaults(con)
     con.close()

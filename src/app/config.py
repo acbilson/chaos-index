@@ -15,6 +15,9 @@ class BaseConfig(object):
     FLASK_SECRET_KEY = environ.get("FLASK_SECRET_KEY")
     SESSION_SECRET = environ.get("SESSION_SECRET")
 
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300
+
 
 class TestConfig(object):
     """Set Flask test configuration variables"""
@@ -28,3 +31,6 @@ class TestConfig(object):
 
     FLASK_SECRET_KEY = "my secret test key"
     SESSION_SECRET = "my secret test session"
+
+    CACHE_TYPE = "SimpleCache"
+    CACHE_DEFAULT_TIMEOUT = 300

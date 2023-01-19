@@ -1,7 +1,10 @@
 import sqlite3
 from sqlite3 import Connection
-from app.core.models import Site, File
+from bs4 import Tag
 
+from app.core.models import Site, File, Metadata
+
+# TODO: replace with a sqlite ORM wrapper (maybe)
 
 def connect(db_path: str) -> Connection:
     return sqlite3.connect(db_path)

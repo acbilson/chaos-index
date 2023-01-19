@@ -29,6 +29,7 @@ start:
   -e "SHARE_PATH=/mnt/share" \
   -v /Users/alexbilson/source/chaos-index/db:/mnt/db \
   -v /Users/alexbilson/source/chaos-index/share:/mnt/share \
+  -v /Users/alexbilson/source/chaos-index/etc:/etc/index \
   --name index \
   acbilson/index:latest
 
