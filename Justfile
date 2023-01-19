@@ -25,11 +25,10 @@ start:
   -e "SITE=http://localhost:$EXPOSED_PORT" \
   -e "FLASK_SECRET_KEY=$FLASK_SECRET_KEY" \
   -e "SESSION_SECRET=$SESSION_SECRET" \
-  -e "DB_PATH=/mnt/db/data.db" \
-  -e "SHARE_PATH=/mnt/share" \
-  -v /Users/alexbilson/source/chaos-index/db:/mnt/db \
-  -v /Users/alexbilson/source/chaos-index/share:/mnt/share \
-  -v /Users/alexbilson/source/chaos-index/etc:/etc/index \
+  -e "DB_PATH=/mnt/index/db" \
+  -e "SHARE_PATH=/mnt/index/share" \
+  -v /Users/alexbilson/source/chaos-index/db:/mnt/index/db \
+  -v /Users/alexbilson/source/chaos-index/share:/mnt/index/share \
   --name index \
   acbilson/index:latest
 

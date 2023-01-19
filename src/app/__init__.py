@@ -12,7 +12,7 @@ def create_app(config=config.BaseConfig):
     app.config.from_object(config)
     cors = CORS(app)
 
-    app.logger.info(app.config.get("DB_PATH"))
+    print(app.config)
 
     # required to encrypt session
     app.secret_key = app.config["FLASK_SECRET_KEY"]

@@ -31,10 +31,10 @@ COPY ./src /app/src
 FROM base as dev
 
 # mount database directory here
-RUN mkdir -p /mnt/db
+RUN mkdir -p /mnt/index/db
 
 # mount share directory here
-RUN mkdir -p /mnt/share
+RUN mkdir -p /mnt/index/share
 
 # mount source code volume here
 WORKDIR /mnt/src
