@@ -5,7 +5,7 @@ from flask_cors import CORS
 from app import config
 from app.core import core_bp
 from app import init
-from app.extensions import cache
+from app.extensions import cache, db
 
 def create_app(config=config.BaseConfig):
     """Initialize the core application"""
@@ -25,7 +25,19 @@ def create_app(config=config.BaseConfig):
 
         # register extensions
         cache.init_app(app)
-        init.init_db(app.config["DB_PATH"])
+        db.init_app(app)
+
+
+        @app.before_request
+        def before_request():
+            app.extensions["db"].connect()
+
+
+        @app.after_request
+        def after_request(resp):
+            app.extensions["db"].disconnect()
+            return resp
+
 
         @app.route("/healthcheck", methods=["GET"])
         def health():

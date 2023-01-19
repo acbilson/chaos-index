@@ -1,3 +1,4 @@
+import pdb
 import os
 from datetime import datetime, timedelta
 import json
@@ -8,14 +9,14 @@ from flask import current_app as app
 from bs4 import BeautifulSoup
 from ..core import core_bp
 
-from app.core import proxy, scrape, parse, index
 from app.extensions import cache
+from app.proxy import SqlProxy
+import app.ops as ops
 
 
 @core_bp.route("/index", methods=["GET"])
-# TODO: make sure connection closes before any return (convert to with proxy:)
-# TODO: move path information to config object
-@cache.cached(timeout=300)
+# TODO: add logging
+@cache.cached()
 def build_index():
     """
     Performs a multi-step process to create an index from multiple websites.
@@ -24,44 +25,46 @@ def build_index():
     Step 2. Parse each HTML file for indexable metadata
     Step 3. Convert metadata to index.json
     """
-    con = proxy.connect(app.config["DB_PATH"])
-
-    # TODO: read site config from a /mnt TOML file that I could deploy w/ Ansible
-    sites = proxy.read_sites(con)
+    db: SqlProxy = app.extensions["db"]
+    sites = db.read_sites()
 
     if not sites or len(sites) == 0:
         return jsonify(msg="No sites available for scraping. Aborting")
 
+    ## Step 1: Scrape
+    #################
     for site in sites:
+        ops.create_root_dir(app.config['SHARE_PATH'], site.author)
+        files = ops.scrape_site(site, app.config['SHARE_PATH'])
+        missing_files = [f for f in files if not os.path.exists(f.path) and not db.file_in_db(f)]
 
-        ## STEP 1. Scrape
-        #################
-        # TODO: simplify this scraper with a top-level config. Should just return file objects
-        page = scrape.get_landing_page(site.url)
-        link_tags = scrape.query_link_tags(page, site.link_query)
-        links = scrape.get_links(link_tags, site.partial_links == '1', site.url)
-        files = scrape.get_files(int(site.id), site.author, links)
-        scrape.create_root_path(site.author)
+        # TODO: make async
+        for file in missing_files:
+            page_html = ops.scrape_page(file.url)
+            ops.write_file(file.path, page_html)
+
+        db.create_files(missing_files)
+
+    ## Step 2: Parse
+    ################
+    for site in sites:
+        files = db.read_files_without_metadata(site.id)
+        metadatas = []
 
         for file in files:
-            if not os.path.exists(scrape.get_full_path(file)) and not proxy.file_in_db(con, file):
-                scrape.write_file(file)
-                proxy.create_file(con, file)
+            page_html = ops.read_file(file.path)
+            metadata = ops.parse_metadata(site, page_html, file)
+            metadatas.append(metadata)
 
-        ## Step 2: Parse
-        ################
-        # TODO: simplify further, taking file objects and returning metadata
-        files = proxy.read_files(con, int(site.id))
-        for file in files:
-            data = parse.read_file(file.path)
-            page = BeautifulSoup(data, 'html.parser')
-            title = parse.get_title(page, site.title_query)
-            content = parse.get_content(page, site.content_query)
-            proxy.create_metadata(con, title, content, file.id)
+        db.create_metadatas(metadatas)
 
-        ## Step 3: Index
-        ################
-        # TODO: a fairly simple step. clarify
-        metadatas = proxy.read_metadatas(con)
-        return jsonify(index.save_index(metadatas))
+    ## Step 3: Index
+    ################
+    metadatas = db.read_metadatas()
+
+    content = []
+    for metadata in metadatas:
+        content.append(dict(id=metadata.url, author=metadata.author, title=metadata.title, content=metadata.content))
+
+    return jsonify(content)
 
