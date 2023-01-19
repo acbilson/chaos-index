@@ -5,8 +5,6 @@ from sqlite3 import Connection
 def init_db(db_path: str) -> None:
     con = sqlite3.connect(db_path)
     _create_tables(con)
-    _remove_defaults(con)
-    _insert_defaults(con)
     con.close()
 
 
@@ -43,16 +41,3 @@ def _create_tables(con: Connection) -> None:
         FOREIGN KEY (file_id)
             REFERENCES file (rowid));
     """)
-
-
-def _remove_defaults(con: Connection) -> None:
-    con.cursor().execute("DELETE FROM site;")
-
-
-def _insert_defaults(con: Connection) -> None:
-    con.cursor().execute("""
-        INSERT INTO site VALUES
-            ('Maggie Appleton', 'https://maggieappleton.com/notes', 1, 'section', 'h1', 'main'),
-            ('Alex Bilson', 'https://alexbilson.dev/plants', 0, 'ul.fill-list', 'h1', 'article.e-content');
-""")
-    con.commit()
