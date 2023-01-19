@@ -19,7 +19,8 @@ class SqlProxy:
 
 
     def file_in_db(self, file: File) -> bool:
-        return self.con.cursor().execute(f"SELECT * FROM file WHERE url == '{file.link}'").fetchone is not None
+        sql = f"SELECT * FROM file WHERE url == '{file.url}'"
+        return self.con.cursor().execute(sql).fetchone() is not None
 
 
     def read_sites(self) -> list[Site]:
@@ -30,7 +31,7 @@ class SqlProxy:
 
 
     def create_files(self, files: list[File]) -> None:
-        data = [(x.link, get_full_path(x), x.site_id) for x in files]
+        data = [(x.url, x.path, x.site_id) for x in files]
         self.con.cursor().executemany("INSERT INTO file VALUES (?, ?, ?, CURRENT_DATE)", data)
         self.con.commit()
 

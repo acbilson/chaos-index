@@ -36,14 +36,15 @@ def build_index():
     for site in sites:
         ops.create_root_dir(app.config['SHARE_PATH'], site.author)
         files = ops.scrape_site(site, app.config['SHARE_PATH'])
-        missing_files = [f for f in files if not os.path.exists(f.path) and not db.file_in_db(f)]
+        missing_files = [f for f in files if not os.path.exists(f.path)]
+        missing_files_in_db = [f for f in files if not db.file_in_db(f)]
 
         # TODO: make async
         for file in missing_files:
             page_html = ops.scrape_page(file.url)
             ops.write_file(file.path, page_html)
 
-        db.create_files(missing_files)
+        db.create_files(missing_files_in_db)
 
     ## Step 2: Parse
     ################

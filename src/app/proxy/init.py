@@ -2,11 +2,19 @@ import sqlite3
 from sqlite3 import Connection
 
 
-def connect(db_path: str) -> Connection:
+def init_db(db_path: str) -> None:
+    con = sqlite3.connect(db_path)
+    _create_tables(con)
+    _remove_defaults(con)
+    _insert_defaults(con)
+    con.close()
+
+
+def _connect(db_path: str) -> Connection:
     return sqlite3.connect(db_path)
 
 
-def create_tables(con: Connection) -> None:
+def _create_tables(con: Connection) -> None:
     cur = con.cursor()
     cur.execute("""
     CREATE TABLE IF NOT EXISTS site(
@@ -37,28 +45,14 @@ def create_tables(con: Connection) -> None:
     """)
 
 
-def insert(con: Connection, sql: str) -> None:
-    cur = con.cursor()
-    cur.execute(sql)
-    con.commit()
+def _remove_defaults(con: Connection) -> None:
+    con.cursor().execute("DELETE FROM site;")
 
 
-def remove_defaults(con: Connection) -> None:
-    cur = con.cursor()
-    cur.execute("DELETE FROM site;")
-
-
-def insert_defaults(con: Connection) -> None:
-        insert(con, """
+def _insert_defaults(con: Connection) -> None:
+    con.cursor().execute("""
         INSERT INTO site VALUES
             ('Maggie Appleton', 'https://maggieappleton.com/notes', 1, 'section', 'h1', 'main'),
             ('Alex Bilson', 'https://alexbilson.dev/plants', 0, 'ul.fill-list', 'h1', 'article.e-content');
 """)
-
-
-def init_db(db_path: str) -> None:
-    con = connect(db_path)
-    create_tables(con)
-    remove_defaults(con)
-    insert_defaults(con)
-    con.close()
+    con.commit()

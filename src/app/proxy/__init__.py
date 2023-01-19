@@ -1,3 +1,4 @@
+from .init import init_db
 from .proxy import SqlProxy
 from .models import Site, File, Metadata
 
@@ -9,4 +10,5 @@ class SqlProxyExtension:
 
     def init_app(self, app):
         db_path = app.config["DB_PATH"]
+        init_db(db_path)
         app.extensions["db"] = SqlProxy(db_path)

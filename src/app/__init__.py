@@ -4,7 +4,6 @@ from flask_cors import CORS
 
 from app import config
 from app.core import core_bp
-from app import init
 from app.extensions import cache, db
 
 def create_app(config=config.BaseConfig):
