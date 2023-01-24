@@ -19,51 +19,65 @@ class SqlProxy:
 
 
     def file_in_db(self, file: File) -> bool:
-        sql = f"SELECT * FROM file WHERE url == '{file.url}'"
-        return self.con.cursor().execute(sql).fetchone() is not None
+        cur = self.con.cursor()
+        in_db = cur.execute("SELECT * FROM file WHERE url == ?", [file.url]).fetchone() is not None
+        cur.close()
+        return in_db
 
 
     def read_sites(self) -> list[Site]:
+        cur = self.con.cursor()
         sites = []
-        for x in self.con.cursor().execute("SELECT rowid, author, url, partial_links, link_query, title_query, content_query FROM site;"):
+        for x in cur.execute("SELECT rowid, author, url, partial_links, link_query, title_query, content_query FROM site;"):
             sites.append(Site(rowid=x[0], author=x[1], url=x[2], partial_links=x[3], link_query=x[4], title_query=x[5], content_query=x[6]))
+        cur.close()
         return sites
 
 
     def create_files(self, files: list[File]) -> None:
+        cur = self.con.cursor()
         data = [(x.url, x.path, x.site_id) for x in files]
-        self.con.cursor().executemany("INSERT INTO file VALUES (?, ?, ?, CURRENT_DATE)", data)
+        cur.executemany("INSERT INTO file VALUES (?, ?, ?, CURRENT_DATE)", data)
         self.con.commit()
+        cur.close()
 
 
     def read_files_without_metadata(self, site_id: int) -> list[File]:
+        cur = self.con.cursor()
         files = []
-        for x in self.con.cursor().execute("""
+        for x in cur.execute("""
             SELECT f.rowid, f.url, f.path, f.site_id
             FROM file f
             LEFT JOIN metadata m
                 ON m.file_id = f.rowid
-            WHERE m.rowid is NULL
-                AND f.site_id = ?;
-        """, (str(site_id))):
+            where f.site_id = ?
+            AND m.file_id IS NULL;
+        """, [site_id]):
             files.append(File(rowid=x[0], url=x[1], path=x[2], site_id=x[3]))
+        cur.close()
         return files
 
 
     def create_metadatas(self, metadatas: list[Metadata]) -> None:
-        data = [(x.title, x.content, x.file_id) for x in metadatas]
-        self.con.cursor().executemany("INSERT INTO metadata VALUES (?, ?, ?)", data)
+        cur = self.con.cursor()
+        data = [(x.file_id, x.title, x.content) for x in metadatas]
+        cur.executemany("INSERT INTO metadata VALUES (?, ?, ?)", data)
         self.con.commit()
+        cur.close()
 
 
-    def read_metadatas(self) -> list[Metadata]:
+    def query_metadata(self, query: str) -> list[Metadata]:
+        cur = self.con.cursor()
         metadata = []
-        for x in self.con.cursor().execute("""
-            SELECT m.rowid, f.url, author, title, content, file_id
+        for x in cur.execute("""
+            SELECT f.url, author, title, snippet(metadata, 2, '[', ']', '', 30), m.file_id
             FROM metadata m
             join file f on m.file_id = f.rowid
-            join site s on f.site_id = s.rowid;
-            """):
-            metadata.append(Metadata(rowid=x[0], url=x[1], author=x[2], title=x[3], content=x[4], file_id=x[5]))
+            join site s on f.site_id = s.rowid
+            where content match ?;
+            """, [query]):
+            if len(x) > 4:
+                metadata.append(Metadata(url=x[0], author=x[1], title=x[2], content=x[3], file_id=x[4]))
+        cur.close()
         return metadata
 

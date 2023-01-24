@@ -40,7 +40,7 @@ RUN mkdir -p /mnt/index/share
 WORKDIR /mnt/src
 
 ENV FLASK_ENV development
-ENTRYPOINT ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=80"]
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=80"]
 
 ############
 # Production
@@ -50,4 +50,4 @@ FROM base as prod
 WORKDIR /app/src
 ENV FLASK_ENV production
 
-ENTRYPOINT ["/root/.local/bin/uwsgi", "--ini", "/etc/index/index.ini"]
+CMD ["/root/.local/bin/uwsgi", "--ini", "/etc/index/index.ini"]

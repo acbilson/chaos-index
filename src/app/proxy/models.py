@@ -35,8 +35,7 @@ class File:
 
 
 class Metadata:
-    def __init__(self, url: str, author: str, title: str, content: str, file_id: int, rowid=None):
-        self.id = int(rowid) if rowid is not None else None
+    def __init__(self, url: str, author: str, title: str, content: str, file_id: int):
         self.url = url
         self.author = author
         self.title = title
