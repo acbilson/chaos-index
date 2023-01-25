@@ -38,9 +38,9 @@ def _query_link_tags(page: BeautifulSoup, query: str) -> list[Tag]:
 
 def _get_urls(tags: list[Tag], partial_links: bool, root_url: str) -> list[str]:
     if partial_links:
-        return [urljoin(root_url, x.get("href")) for x in tags]
+        return [urljoin(root_url, x.get("href")) for x in tags if x.get("href").startswith('/')]
     else:
-        return [x.get("href") for x in tags]
+        return [x.get("href") for x in tags if root_url in x.get("href")]
 
 
 def _urls_to_files(site: Site, urls: list[str], root_dir: str) -> list[File]:
