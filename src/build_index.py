@@ -2,6 +2,7 @@ import os
 from os import environ
 from datetime import date
 import logging
+from itertools import groupby
 
 from app.proxy import SqlProxy
 from app.proxy import init_db
@@ -35,7 +36,6 @@ def build_index(db_path: str, share_path: str, log_path):
 
     sites = db.read_sites()
 
-    # TODO: Logging instead
     if not sites or len(sites) == 0:
         logging.info("No sites available for scraping.")
         return
@@ -63,19 +63,22 @@ def build_index(db_path: str, share_path: str, log_path):
 
     ## Step 2: Parse
     ################
-    for site in sites:
-        logging.info("Getting metadata for %s", site.url)
-        files = db.read_files_without_metadata(site.id)
-        logging.info("Number of files without metadata: %s", len(files))
+    logging.info("Getting metadata")
+    files = db.read_files_without_metadata()
+    logging.info("Number of files without metadata: %s", len(files))
 
+    for site_id, file_group in groupby(files, lambda x: x.site_id):
+        site = list(filter(lambda s: s.id == site_id, sites))[0]
+        logging.info("Parsing metadata for %s", site.url)
         metadatas = []
-        for file in files:
+        for file in file_group:
             page_html = ops.read_file(file.path)
             metadata = ops.parse_metadata(site, page_html, file)
             metadatas.append(metadata)
 
         if len(metadatas) > 0:
-            db.create_metadatas(metadatas)
+            logging.info("Creating %s metadata for %s", len(metadatas), site.url)
+            db.create_metadatas(site_id, metadatas)
 
     db.disconnect()
     logging.info("database connection closed")

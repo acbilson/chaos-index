@@ -39,12 +39,13 @@ class File:
 
 
 class Metadata:
-    def __init__(self, url: str, author: str, title: str, content: str, file_id: int):
+    def __init__(self, url: str, author: str, title: str, content: str, file_id: int, site_id: int):
         self.url = url
         self.author = author
         self.title = title
         self.content = content
         self.file_id = file_id
+        self.site_id = site_id
 
     def __str__(self):
         return f"Metadata <{self.url}>"

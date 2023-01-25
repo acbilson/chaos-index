@@ -39,6 +39,17 @@ def _create_tables(con: Connection) -> None:
     )
     cur.execute(
         """
+    CREATE TABLE IF NOT EXISTS metadata(
+        file_id INTEGER NOT NULL,
+        site_id INTEGER NOT NULL,
+        FOREIGN KEY (file_id)
+            REFERENCES file (rowid),
+        FOREIGN KEY (site_id)
+            REFERENCES site (rowid));
+    """
+    )
+    cur.execute(
+        """
     CREATE VIRTUAL TABLE IF NOT EXISTS metadata
         USING fts5(file_id, title, content);
     """

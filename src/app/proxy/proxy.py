@@ -51,7 +51,7 @@ class SqlProxy:
         self.con.commit()
         cur.close()
 
-    def read_files_without_metadata(self, site_id: int) -> list[File]:
+    def read_files_without_metadata(self) -> list[File]:
         cur = self.con.cursor()
         files = []
         for x in cur.execute(
@@ -60,19 +60,16 @@ class SqlProxy:
             FROM file f
             LEFT JOIN metadata m
                 ON m.file_id = f.rowid
-            where f.site_id = ?
-            AND m.file_id IS NULL;
-        """,
-            [site_id],
-        ):
+            WHERE m.file_id IS NULL;
+        """):
             files.append(File(rowid=x[0], url=x[1], path=x[2], site_id=x[3]))
         cur.close()
         return files
 
-    def create_metadatas(self, metadatas: list[Metadata]) -> None:
+    def create_metadatas(self, site_id: int, metadatas: list[Metadata]) -> None:
         cur = self.con.cursor()
-        data = [(x.file_id, x.title, x.content) for x in metadatas]
-        cur.executemany("INSERT INTO metadata VALUES (?, ?, ?)", data)
+        cur.executemany("INSERT INTO metadata VALUES (?, ?)", [(site_id, x.file_id) for x in metadatas])
+        cur.executemany("INSERT INTO metadata_fts VALUES (?, ?, ?)", [(x.file_id, x.title, x.content) for x in metadatas])
         self.con.commit()
         cur.close()
 
@@ -86,9 +83,9 @@ class SqlProxy:
                 SELECT f.url,
                        author,
                        title,
-                       snippet(metadata, 2, '<span class="highlight">', '</span>', '', 30),
+                       snippet(metadata_fts, 2, '<span class="highlight">', '</span>', '', 30),
                        m.file_id
-                FROM metadata m
+                FROM metadata_fts m
                 join file f on m.file_id = f.rowid
                 join site s on f.site_id = s.rowid
                 where content match ?;
