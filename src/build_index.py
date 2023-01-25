@@ -56,9 +56,11 @@ def build_index(db_path: str, share_path: str, log_path):
         if len(missing_files) > 0:
             for file in missing_files:
                 page_html = ops.scrape_page(file.url)
+                logging.info("Downloading %s", file.url)
                 ops.write_file(file.path, page_html)
 
         if len(missing_files_in_db) > 0:
+            logging.info("Inserting %s files into db", len(files))
             db.create_files(missing_files_in_db)
 
     ## Step 2: Parse
@@ -77,7 +79,7 @@ def build_index(db_path: str, share_path: str, log_path):
             metadatas.append(metadata)
 
         if len(metadatas) > 0:
-            logging.info("Creating %s metadata for %s", len(metadatas), site.url)
+            logging.info("Inserting %s metadata for %s", len(metadatas), site.url)
             db.create_metadatas(site_id, metadatas)
 
     db.disconnect()
