@@ -44,5 +44,10 @@ def _to_metadata(
         else None
     )
     return Metadata(
-        url=file.url, author=site.author, title=title, content=content, file_id=file.id, site_id=site.id
+        url=file.url,
+        author=site.author,
+        title=title,
+        content=content,
+        file_id=file.id,
+        site_id=site.id,
     )
