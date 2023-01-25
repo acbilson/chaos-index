@@ -58,9 +58,8 @@ class SqlProxy:
             """
             SELECT f.rowid, f.url, f.path, f.site_id
             FROM file f
-            LEFT JOIN metadata m
-                ON m.file_id = f.rowid
-            WHERE m.file_id IS NULL;
+            WHERE rowid not in
+                (SELECT file_id from metadata_fts);
         """):
             files.append(File(rowid=x[0], url=x[1], path=x[2], site_id=x[3]))
         cur.close()
@@ -68,7 +67,6 @@ class SqlProxy:
 
     def create_metadatas(self, site_id: int, metadatas: list[Metadata]) -> None:
         cur = self.con.cursor()
-        cur.executemany("INSERT INTO metadata VALUES (?, ?)", [(site_id, x.file_id) for x in metadatas])
         cur.executemany("INSERT INTO metadata_fts VALUES (?, ?, ?)", [(x.file_id, x.title, x.content) for x in metadatas])
         self.con.commit()
         cur.close()
