@@ -84,7 +84,8 @@ class SqlProxy:
                        author,
                        title,
                        snippet(metadata_fts, 2, '<span class="highlight">', '</span>', '', 30),
-                       m.file_id
+                       m.file_id,
+                       s.rowid
                 FROM metadata_fts m
                 join file f on m.file_id = f.rowid
                 join site s on f.site_id = s.rowid
@@ -100,6 +101,7 @@ class SqlProxy:
                             title=x[2],
                             content=x[3],
                             file_id=x[4],
+                            site_id=x[5],
                         )
                     )
         except sqlite3.OperationalError as e:
