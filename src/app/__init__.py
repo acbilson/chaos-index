@@ -6,6 +6,7 @@ from app import config
 from app.core import core_bp
 from app.extensions import cache, db
 
+
 def create_app(config=config.BaseConfig):
     """Initialize the core application"""
     app = Flask(__name__, instance_relative_config=False)
@@ -26,17 +27,14 @@ def create_app(config=config.BaseConfig):
         cache.init_app(app)
         db.init_app(app)
 
-
         @app.before_request
         def before_request():
             app.extensions["db"].connect()
-
 
         @app.after_request
         def after_request(resp):
             app.extensions["db"].disconnect()
             return resp
-
 
         @app.route("/healthcheck", methods=["GET"])
         def health():

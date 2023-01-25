@@ -2,9 +2,9 @@ import os
 
 
 def create_root_dir(root_dir: str, author: str) -> None:
-    path = os.path.join(root_dir, author.lower().replace(' ', '-'))
+    path = os.path.join(root_dir, author.lower().replace(" ", "-"))
     if not os.path.exists(path):
-            os.makedirs(path)
+        os.makedirs(path)
 
 
 def write_file(path: str, content: str) -> None:

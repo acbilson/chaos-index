@@ -14,7 +14,8 @@ def _connect(db_path: str) -> Connection:
 
 def _create_tables(con: Connection) -> None:
     cur = con.cursor()
-    cur.execute("""
+    cur.execute(
+        """
     CREATE TABLE IF NOT EXISTS site(
         author TEXT NOT NULL,
         url TEXT NOT NULL,
@@ -23,8 +24,10 @@ def _create_tables(con: Connection) -> None:
         title_query TEXT NOT NULL,
         content_query TEXT NOT NULL
         );
-    """)
-    cur.execute("""
+    """
+    )
+    cur.execute(
+        """
     CREATE TABLE IF NOT EXISTS file(
         url TEXT NOT NULL,
         path TEXT NOT NULL,
@@ -32,8 +35,11 @@ def _create_tables(con: Connection) -> None:
         created TEXT NOT NULL,
         FOREIGN KEY (site_id)
             REFERENCES site (rowid));
-    """)
-    cur.execute("""
+    """
+    )
+    cur.execute(
+        """
     CREATE VIRTUAL TABLE IF NOT EXISTS metadata
         USING fts5(file_id, title, content);
-    """)
+    """
+    )

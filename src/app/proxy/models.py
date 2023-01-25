@@ -1,5 +1,14 @@
 class Site:
-    def __init__(self, author: str, url: str, partial_links: int, link_query: str, title_query: str, content_query: str, rowid=None):
+    def __init__(
+        self,
+        author: str,
+        url: str,
+        partial_links: int,
+        link_query: str,
+        title_query: str,
+        content_query: str,
+        rowid=None,
+    ):
         self.id = int(rowid) if rowid is not None else None
         self.author = author
         self.url = url
@@ -8,10 +17,8 @@ class Site:
         self.title_query = title_query
         self.content_query = content_query
 
-
     def __str__(self):
         return f"Site <{self.url}>"
-
 
     def __repr__(self):
         return self.__str__()
@@ -24,14 +31,11 @@ class File:
         self.path = path
         self.site_id = int(site_id)
 
-
     def __str__(self):
         return f"File <{self.url}>"
 
-
     def __repr__(self):
         return self.__str__()
-
 
 
 class Metadata:
@@ -42,10 +46,8 @@ class Metadata:
         self.content = content
         self.file_id = file_id
 
-
     def __str__(self):
         return f"Metadata <{self.url}>"
-
 
     def __repr__(self):
         return self.__str__()

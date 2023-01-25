@@ -3,8 +3,8 @@ from .init import init_db
 from .proxy import SqlProxy
 from .models import Site, File, Metadata
 
-class SqlProxyExtension:
 
+class SqlProxyExtension:
     def __init__(self, app=None):
         if app is not None:
             self.init_app(app)

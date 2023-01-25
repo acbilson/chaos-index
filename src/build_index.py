@@ -7,6 +7,7 @@ from app.proxy import SqlProxy
 from app.proxy import init_db
 import app.ops as ops
 
+
 def build_index(db_path: str, share_path: str, log_path):
     """
     Performs a two-step process to create an index from multiple websites.
@@ -15,7 +16,9 @@ def build_index(db_path: str, share_path: str, log_path):
     Step 2. Parse each HTML file for indexable metadata
     """
     # configures logging
-    logging.basicConfig(filename = os.path.join(log_path, 'build_index.log'), level = logging.INFO)
+    logging.basicConfig(
+        filename=os.path.join(log_path, "build_index.log"), level=logging.INFO
+    )
 
     logging.info("==================\nSTARTING INDEX JOB\n==================")
     logging.info(date.today())
@@ -76,6 +79,7 @@ def build_index(db_path: str, share_path: str, log_path):
 
     db.disconnect()
     logging.info("database connection closed")
+
 
 if __name__ == "__main__":
     share_path = environ.get("SHARE_PATH") or "/mnt/index/share"
