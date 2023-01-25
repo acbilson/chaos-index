@@ -9,6 +9,8 @@ from app.proxy import init_db
 import app.ops as ops
 
 
+# TODO: batch jobs for less memory usage per run. I think this
+# is why it's failing on Vultr
 def build_index(db_path: str, share_path: str, log_path):
     """
     Performs a two-step process to create an index from multiple websites.

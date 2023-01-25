@@ -36,14 +36,14 @@ def _query_link_tags(page: BeautifulSoup, query: str) -> list[Tag]:
         return page.find(tag).find_all("a")
 
 
-def _get_urls(tags: list[Tag], partial_links: bool, root_url: str) -> list[str]:
+def _get_urls(tags: list[Tag], partial_links: bool, root_url: str) -> set[str]:
     if partial_links:
-        return [urljoin(root_url, x.get("href")) for x in tags if x.get("href").startswith('/')]
+        return set([urljoin(root_url, x.get("href")) for x in tags if x.get("href").startswith('/')])
     else:
-        return [x.get("href") for x in tags if root_url in x.get("href")]
+        return set([x.get("href") for x in tags if urlparse(root_url).netloc in x.get("href")])
 
 
-def _urls_to_files(site: Site, urls: list[str], root_dir: str) -> list[File]:
+def _urls_to_files(site: Site, urls: set[str], root_dir: str) -> list[File]:
     files = []
     for url in urls:
         path = _get_full_path(site.author, root_dir, url)

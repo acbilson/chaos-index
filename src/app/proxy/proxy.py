@@ -47,7 +47,7 @@ class SqlProxy:
     def create_files(self, files: list[File]) -> None:
         cur = self.con.cursor()
         data = [(x.url, x.path, x.site_id) for x in files]
-        cur.executemany("INSERT INTO file VALUES (?, ?, ?, CURRENT_DATE)", data)
+        cur.executemany("INSERT OR IGNORE INTO file VALUES (?, ?, ?, CURRENT_DATE)", data)
         self.con.commit()
         cur.close()
 
@@ -67,7 +67,7 @@ class SqlProxy:
 
     def create_metadatas(self, site_id: int, metadatas: list[Metadata]) -> None:
         cur = self.con.cursor()
-        cur.executemany("INSERT INTO metadata_fts VALUES (?, ?, ?)", [(x.file_id, x.title, x.content) for x in metadatas])
+        cur.executemany("INSERT OR IGNORE INTO metadata_fts VALUES (?, ?, ?)", [(x.file_id, x.title, x.content) for x in metadatas])
         self.con.commit()
         cur.close()
 
